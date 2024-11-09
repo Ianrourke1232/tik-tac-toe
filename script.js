@@ -1,90 +1,137 @@
-const cells = document.querySelectorAll('[data-cell]');
-const statusDisplay = document.getElementById('status');
-let isXNext = true;
-let gameBoard = ['', '', '', '', '', '', '', '', ''];
-let isGameActive = true;
+let board = ["", "", "", "", "", "", "", "", ""];
+let currentPlayer = "X";
+let gameActive = true;
+let gameMode = "pvp";  // Default mode is Player vs Player
 
 const winningCombinations = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    [0, 4, 8],
-    [2, 4, 6]
+    [0, 1, 2], [3, 4, 5], [6, 7, 8],
+    [0, 3, 6], [1, 4, 7], [2, 5, 8],
+    [0, 4, 8], [2, 4, 6]
 ];
 
-function handleCellClick(e) {
-    const clickedCell = e.target;
-    const clickedIndex = Array.from(cells).indexOf(clickedCell);
+const statusDisplay = document.getElementById("status");
 
-    if (gameBoard[clickedIndex] !== '' || !isGameActive) {
-        return;
-    }
+function setGameMode() {
+    gameMode = document.getElementById("mode").value;
+    resetGame();
+}
 
-    gameBoard[clickedIndex] = isXNext ? 'X' : 'O';
-    clickedCell.textContent = isXNext ? 'X' : 'O';
+function makeMove(index) {
+    if (gameActive && board[index] === "") {
+        board[index] = currentPlayer;
+        const cell = document.querySelectorAll(".cell")[index];
+        cell.textContent = currentPlayer;
+        cell.style.color = currentPlayer === "X" ? "#FF6B6B" : "#556270";
+        checkResult();
 
-    if (checkWinner()) {
-        setGameStatus(isXNext ? 'Player X wins!' : 'Player O wins!');
-        isGameActive = false;
-    } else if (gameBoard.every(cell => cell !== '')) {
-        setGameStatus('It\'s a draw!');
-        isGameActive = false;
-    } else {
-        isXNext = !isXNext;
-        statusDisplay.textContent = `Player ${isXNext ? 'X' : 'O'}'s turn`;
-        if (!isXNext) {
-            setTimeout(aiMove, 500); // AI move for player O
+        if (gameActive) {
+            if (gameMode === "pvp") {
+                currentPlayer = currentPlayer === "X" ? "O" : "X";
+            } else if (gameMode === "easy" && currentPlayer === "X") {
+                currentPlayer = "O";
+                setTimeout(makeEasyMove, 500);
+            } else if (gameMode === "hard" && currentPlayer === "X") {
+                currentPlayer = "O";
+                setTimeout(makeHardMove, 500);
+            }
         }
     }
 }
 
-function checkWinner() {
-    for (let combination of winningCombinations) {
+function checkResult() {
+    for (const combination of winningCombinations) {
         const [a, b, c] = combination;
-        if (gameBoard[a] && gameBoard[a] === gameBoard[b] && gameBoard[a] === gameBoard[c]) {
-            return true;
+        if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+            gameActive = false;
+            highlightWinningCells(combination);
+            statusDisplay.textContent = `${board[a]} wins!`;
+            return;
         }
     }
-    return false;
+
+    if (!board.includes("")) {
+        gameActive = false;
+        statusDisplay.textContent = "It's a draw!";
+    }
 }
 
-function setGameStatus(status) {
-    statusDisplay.textContent = status;
-}
-
-function restartGame() {
-    gameBoard = ['', '', '', '', '', '', '', '', ''];
-    isXNext = true;
-    isGameActive = true;
-    statusDisplay.textContent = `Player X's turn`;
-
-    cells.forEach(cell => {
-        cell.textContent = '';
+function highlightWinningCells(cells) {
+    cells.forEach(index => {
+        const cell = document.querySelectorAll(".cell")[index];
+        cell.style.backgroundColor = "#4CAF50";
     });
 }
 
-function aiMove() {
-    if (!isGameActive) return;
+function makeEasyMove() {
+    let availableMoves = board.map((val, idx) => val === "" ? idx : null).filter(val => val !== null);
+    if (availableMoves.length > 0) {
+        let randomMove = availableMoves[Math.floor(Math.random() * availableMoves.length)];
+        board[randomMove] = "O";
+        const cell = document.querySelectorAll(".cell")[randomMove];
+        cell.textContent = "O";
+        cell.style.color = "#556270";
+        checkResult();
 
-    const emptyCells = gameBoard.map((cell, index) => cell === '' ? index : -1).filter(index => index !== -1);
-    const randomIndex = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-
-    gameBoard[randomIndex] = 'O';
-    cells[randomIndex].textContent = 'O';
-
-    if (checkWinner()) {
-        setGameStatus('Player O wins!');
-        isGameActive = false;
-    } else if (gameBoard.every(cell => cell !== '')) {
-        setGameStatus('It\'s a draw!');
-        isGameActive = false;
-    } else {
-        isXNext = true;
-        statusDisplay.textContent = `Player X's turn`;
+        if (gameActive) {
+            currentPlayer = "X";
+        }
     }
 }
 
-cells.forEach(cell => cell.addEventListener('click', handleCellClick));
+function makeHardMove() {
+    // Check if AI can win
+    for (const combination of winningCombinations) {
+        const [a, b, c] = combination;
+        if (board[a] === "O" && board[b] === "O" && board[c] === "") {
+            return makeAIMove(c);
+        }
+        if (board[a] === "O" && board[c] === "O" && board[b] === "") {
+            return makeAIMove(b);
+        }
+        if (board[b] === "O" && board[c] === "O" && board[a] === "") {
+            return makeAIMove(a);
+        }
+    }
+
+    // Block the player if they can win
+    for (const combination of winningCombinations) {
+        const [a, b, c] = combination;
+        if (board[a] === "X" && board[b] === "X" && board[c] === "") {
+            return makeAIMove(c);
+        }
+        if (board[a] === "X" && board[c] === "X" && board[b] === "") {
+            return makeAIMove(b);
+        }
+        if (board[b] === "X" && board[c] === "X" && board[a] === "") {
+            return makeAIMove(a);
+        }
+    }
+
+    // If no immediate win or block, pick a random move
+    makeEasyMove();
+}
+
+function makeAIMove(index) {
+    board[index] = "O";
+    const cell = document.querySelectorAll(".cell")[index];
+    cell.textContent = "O";
+    cell.style.color = "#556270";
+    checkResult();
+
+    if (gameActive) {
+        currentPlayer = "X";
+    }
+}
+
+function resetGame() {
+    board = ["", "", "", "", "", "", "", "", ""];
+    currentPlayer = "X";
+    gameActive = true;
+    document.querySelectorAll(".cell").forEach(cell => {
+        cell.textContent = "";
+        cell.style.backgroundColor = "rgba(255, 255, 255, 0.2)";
+        cell.style.color = "#ffffff";
+    });
+    statusDisplay.textContent = "";
+}
+
