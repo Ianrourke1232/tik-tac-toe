@@ -1,79 +1,243 @@
-* {
-    box-sizing: border-box;
+/* General Styling */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #2c3e50;
+    color: white;
+    text-align: center;
     margin: 0;
     padding: 0;
-    font-family: 'Arial', sans-serif;
-}
-
-body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background: linear-gradient(135deg, #FF6B6B, #556270);
-}
-
-.container {
-    text-align: center;
-    color: #fff;
 }
 
 h1 {
-    font-size: 2em;
-    margin-bottom: 20px;
-    text-shadow: 2px 2px #333;
+    font-size: 36px;
+    color: #e74c3c;
 }
 
-.mode-select {
-    margin-bottom: 15px;
-    color: #fff;
-    font-size: 1.1em;
+.game-container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #34495e;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
-select {
-    padding: 5px;
-    font-size: 1em;
-    border-radius: 5px;
-    border: none;
-    outline: none;
-}
-
-.board {
-    display: grid;
-    grid-template-columns: repeat(3, 120px);
-    gap: 15px;
-    margin-bottom: 20px;
-}
-
-.cell {
-    width: 120px;
-    height: 120px;
+/* Slot Machine Styling */
+.slot-machine {
     display: flex;
     justify-content: center;
-    align-items: center;
-    font-size: 36px;
-    font-weight: bold;
-    color: #ffffff;
-    cursor: pointer;
-    background-color: rgba(255, 255, 255, 0.2);
+    margin: 20px 0;
+}
+
+.slot {
+    font-size: 40px;
+    width: 80px;
+    height: 80px;
+    margin: 0 10px;
+    padding: 15px;
     border-radius: 10px;
-    transition: background-color 0.3s ease;
+    background-color: #ecf0f1;
+    color: #3498db;
+    text-align: center;
 }
 
-.cell:hover {
-    background-color: rgba(255, 255, 255, 0.3);
+.controls {
+    margin: 20px 0;
 }
 
+/* Button Styling */
 button {
-    padding: 10px 20px;
-    font-size: 1.1em;
-    background-color: #4CAF50;
+    font-size: 18px;
+    padding: 12px 25px;
+    background-color: #3498db;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     cursor: pointer;
-    color: #fff;
+    color: white;
+    margin: 10px;
 }
 
 button:hover {
-    background-color: #45a049;
+    background-color: #2980b9;
+}
+
+/* Disabled Button Styling */
+button:disabled {
+    background-color: #bdc3c7;
+    cursor: not-allowed;
+}
+
+/* Notification Styling */
+#notification {
+    display: none;
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 15px 30px;
+    background: #16a085;
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    z-index: 999;
+}
+
+#notification.error {
+    background: #e74c3c;
+}
+
+/* Modal Styling */
+.modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #34495e;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.modal-content {
+    text-align: left;
+}
+
+.modal-content h2 {
+    font-size: 28px;
+    color: #e74c3c;
+    margin-bottom: 20px;
+}
+
+.modal-content ul {
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+.modal-content ul li {
+    margin: 10px 0;
+}
+
+.modal-content ul li ul {
+    list-style-type: none;
+    margin-left: 20px;
+}
+
+.modal-content ul li ul li {
+    font-size: 16px;
+}
+
+#close-patch-notes {
+    font-size: 18px;
+    padding: 12px 25px;
+    background-color: #e74c3c;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    color: white;
+    margin-top: 20px;
+}
+
+#close-patch-notes:hover {
+    background-color: #c0392b;
+}
+
+button#rules-button {
+    font-size: 18px;
+    padding: 12px 25px;
+    background-color: #3498db;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    color: white;
+}
+
+button#rules-button:hover {
+    background-color: #2980b9;
+}
+
+/* Input Styling */
+input[type="text"] {
+    font-size: 18px;
+    padding: 10px;
+    margin: 10px;
+    border: 1px solid #bdc3c7;
+    border-radius: 8px;
+    width: 60%;
+}
+
+input[type="text"]:focus {
+    outline-color: #3498db;
+}
+
+/* Special UI Elements */
+#post-score-button {
+    display: none;
+    font-size: 18px;
+    padding: 12px 25px;
+    background-color: #9b59b6;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    color: white;
+    margin: 10px;
+}
+
+#post-score-button:hover {
+    background-color: #8e44ad;
+}
+
+button#patch-notes-button {
+    font-size: 18px;
+    padding: 12px 25px;
+    background-color: #3498db;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    color: white;
+}
+
+button#patch-notes-button:hover {
+    background-color: #2980b9;
+}
+
+button#claim-reward {
+    font-size: 18px;
+    padding: 12px 25px;
+    background-color: #e67e22;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    color: white;
+}
+
+button#claim-reward:hover {
+    background-color: #d35400;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .slot-machine {
+        flex-direction: column;
+    }
+
+    .slot {
+        margin-bottom: 10px;
+    }
+
+    .controls {
+        flex-direction: column;
+    }
+
+    button {
+        width: 80%;
+        margin-bottom: 10px;
+    }
+
+    input[type="text"] {
+        width: 80%;
+    }
 }
