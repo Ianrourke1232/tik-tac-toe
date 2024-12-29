@@ -1,139 +1,141 @@
-let board = ["", "", "", "", "", "", "", "", ""];
-let currentPlayer = "X";
-let gameActive = true;
-let gameMode = "pvp";  // Default mode is Player vs Player
+document.addEventListener("DOMContentLoaded", function() {
+    const pointsElement = document.getElementById("points");
+    let points = 200;
+    const redeemCode = { // Redeem codes object with multiple codes and their respective point values
+        "BONUS100": 50,
+        "quantumsync": 100,
+        "dev": 10000
+    };
 
-const winningCombinations = [
-    [0, 1, 2], [3, 4, 5], [6, 7, 8],
-    [0, 3, 6], [1, 4, 7], [2, 5, 8],
-    [0, 4, 8], [2, 4, 6]
-];
+    // Load stored points and check if daily reward has been claimed today
+    const storedPoints = localStorage.getItem("points");
+    if (storedPoints) {
+        points = parseInt(storedPoints);
+        pointsElement.textContent = `Points: ${points}`;
+    }
 
-const statusDisplay = document.getElementById("status");
+    const lastClaimDate = localStorage.getItem("lastClaimDate");
+    const today = new Date().toDateString();
 
-function setGameMode() {
-    gameMode = document.getElementById("mode").value;
-    resetGame();
-}
+    // Disable the daily reward button if the user has already claimed today
+    if (lastClaimDate === today) {
+        document.getElementById("claim-reward").disabled = true;
+        document.getElementById("claim-reward").textContent = "Reward Claimed Today";
+    }
 
-function makeMove(index) {
-    if (gameActive && board[index] === "") {
-        board[index] = currentPlayer;
-        const cell = document.querySelectorAll(".cell")[index];
-        cell.textContent = currentPlayer;
-        cell.style.color = currentPlayer === "X" ? "#FF6B6B" : "#556270";
-        checkResult();
-
-        if (gameActive) {
-            if (gameMode === "pvp") {
-                currentPlayer = currentPlayer === "X" ? "O" : "X";
-            } else if (gameMode === "easy" && currentPlayer === "X") {
-                currentPlayer = "O";
-                setTimeout(makeEasyMove, 500);
-            } else if (gameMode === "hard" && currentPlayer === "X") {
-                currentPlayer = "O";
-                setTimeout(makeHardMove, 500);
-            }
+    // Spin button functionality
+    document.getElementById("spin-button").addEventListener("click", function() {
+        if (points >= 10) {
+            points -= 10; // Deduct points for spinning
+            pointsElement.textContent = `Points: ${points}`;
+            spinSlots();
+        } else {
+            showNotification("Not enough points to spin!");
         }
-    }
-}
-
-function checkResult() {
-    for (const combination of winningCombinations) {
-        const [a, b, c] = combination;
-        if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-            gameActive = false;
-            highlightWinningCells(combination);
-            statusDisplay.textContent = `${board[a]} wins!`;
-            return;
-        }
-    }
-
-    if (!board.includes("")) {
-        gameActive = false;
-        statusDisplay.textContent = "It's a draw!";
-    }
-}
-
-function highlightWinningCells(cells) {
-    cells.forEach(index => {
-        const cell = document.querySelectorAll(".cell")[index];
-        cell.style.backgroundColor = "#4CAF50";
     });
-}
 
-function makeEasyMove() {
-    let availableMoves = board.map((val, idx) => val === "" ? idx : null).filter(val => val !== null);
-    if (availableMoves.length > 0) {
-        let randomMove = availableMoves[Math.floor(Math.random() * availableMoves.length)];
-        board[randomMove] = "O";
-        const cell = document.querySelectorAll(".cell")[randomMove];
-        cell.textContent = "O";
-        cell.style.color = "#556270";
-        checkResult();
-
-        if (gameActive) {
-            currentPlayer = "X";
+    // Redeem code functionality
+    document.getElementById("redeem-button").addEventListener("click", function() {
+        const enteredCode = document.getElementById("redeem-code").value.trim().toLowerCase();
+        
+        // Check if the code has already been redeemed
+        const redeemedCodes = JSON.parse(localStorage.getItem("redeemedCodes")) || [];
+        if (redeemedCodes.includes(enteredCode)) {
+            showNotification("You have already redeemed this code!");
+            return; // Prevent redemption if the code was already used
         }
-    }
-}
 
-function makeHardMove() {
-    // Check if AI can win
-    for (const combination of winningCombinations) {
-        const [a, b, c] = combination;
-        if (board[a] === "O" && board[b] === "O" && board[c] === "") {
-            return makeAIMove(c);
-        }
-        if (board[a] === "O" && board[c] === "O" && board[b] === "") {
-            return makeAIMove(b);
-        }
-        if (board[b] === "O" && board[c] === "O" && board[a] === "") {
-            return makeAIMove(a);
-        }
-    }
+        // Check if the entered code exists in the redeemCode object
+        if (redeemCode[enteredCode]) {
+            points += redeemCode[enteredCode]; // Add the points for the redeem code
+            pointsElement.textContent = `Points: ${points}`;
+            showNotification(`${enteredCode} code redeemed! You received ${redeemCode[enteredCode]} points.`);
 
-    // Block the player if they can win
-    for (const combination of winningCombinations) {
-        const [a, b, c] = combination;
-        if (board[a] === "X" && board[b] === "X" && board[c] === "") {
-            return makeAIMove(c);
+            // Save the redeemed code to localStorage to prevent future redemption
+            redeemedCodes.push(enteredCode);
+            localStorage.setItem("redeemedCodes", JSON.stringify(redeemedCodes));
+            localStorage.setItem("points", points);
+        } else {
+            showNotification("Invalid redeem code!");
         }
-        if (board[a] === "X" && board[c] === "X" && board[b] === "") {
-            return makeAIMove(b);
-        }
-        if (board[b] === "X" && board[c] === "X" && board[a] === "") {
-            return makeAIMove(a);
-        }
-    }
-
-    // If no immediate win or block, pick a random move
-    makeEasyMove();
-}
-
-function makeAIMove(index) {
-    board[index] = "O";
-    const cell = document.querySelectorAll(".cell")[index];
-    cell.textContent = "O";
-    cell.style.color = "#556270";
-    checkResult();
-
-    if (gameActive) {
-        currentPlayer = "X";
-    }
-}
-
-function resetGame() {
-    board = ["", "", "", "", "", "", "", "", ""];
-    currentPlayer = "X";
-    gameActive = true;
-    document.querySelectorAll(".cell").forEach(cell => {
-        cell.textContent = "";
-        cell.style.backgroundColor = "rgba(255, 255, 255, 0.2)";
-        cell.style.color = "#ffffff";
     });
-    statusDisplay.textContent = "";
-}
 
+    // Claim daily reward functionality
+    document.getElementById("claim-reward").addEventListener("click", function() {
+        if (lastClaimDate === today) {
+            showNotification("You've already claimed your daily reward today!");
+        } else {
+            points += 50; // Daily reward points
+            pointsElement.textContent = `Points: ${points}`;
+            showNotification("Daily reward claimed! You received 50 points.");
+            localStorage.setItem("lastClaimDate", today); // Save today's date to prevent spamming
+            localStorage.setItem("points", points);
+
+            // Disable the button after claiming the reward
+            document.getElementById("claim-reward").disabled = true;
+            document.getElementById("claim-reward").textContent = "Reward Claimed Today";
+        }
+    });
+
+    // Patch notes button functionality
+    document.getElementById("patch-notes-button").addEventListener("click", function() {
+        document.getElementById("patch-notes-modal").style.display = "block";
+    });
+
+    // Close patch notes modal
+    document.getElementById("close-patch-notes").addEventListener("click", function() {
+        document.getElementById("patch-notes-modal").style.display = "none";
+    });
+
+    // Game rules button functionality
+    document.getElementById("rules-button").addEventListener("click", function() {
+        document.getElementById("rules-modal").style.display = "block";
+    });
+
+    // Start game from rules modal
+    document.getElementById("start-game").addEventListener("click", function() {
+        document.getElementById("rules-modal").style.display = "none";
+    });
+
+    // Spin slots logic (this can be modified for random results)
+    function spinSlots() {
+        const slotSymbols = ["🍇", "🍒", "🍋", "🍉", "🍊"];
+        const slot1 = slotSymbols[Math.floor(Math.random() * slotSymbols.length)];
+        const slot2 = slotSymbols[Math.floor(Math.random() * slotSymbols.length)];
+        const slot3 = slotSymbols[Math.floor(Math.random() * slotSymbols.length)];
+
+        document.getElementById("slot1").textContent = slot1;
+        document.getElementById("slot2").textContent = slot2;
+        document.getElementById("slot3").textContent = slot3;
+
+        checkWin(slot1, slot2, slot3);
+    }
+
+    // Check if the player won
+    function checkWin(slot1, slot2, slot3) {
+        if (slot1 === slot2 && slot2 === slot3) {
+            points += 100; // Jackpot!
+            pointsElement.textContent = `Points: ${points}`;
+            showNotification("Jackpot! You win 100 points!");
+        } else if (slot1 === slot2 || slot2 === slot3 || slot1 === slot3) {
+            points += 20; // Small win
+            pointsElement.textContent = `Points: ${points}`;
+            showNotification("Small win! You win 20 points.");
+        } else {
+            showNotification("No match, try again!");
+        }
+        localStorage.setItem("points", points);
+    }
+
+    // Show notification pop-up
+    function showNotification(message) {
+        const notification = document.getElementById("notification");
+        notification.textContent = message;
+        notification.style.display = "block";
+        setTimeout(function() {
+            notification.style.display = "none";
+        }, 3000);
+    }
+});
 
 
