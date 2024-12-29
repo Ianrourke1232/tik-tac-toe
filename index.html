@@ -3,41 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tic Tac Toe</title>
-    <link rel="stylesheet" href="style.css">
+    <title>QuantumSync Slot Game</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Tic Tac Toe</h1>
-        <div class="mode-select">
-            <label for="mode">Choose Mode:</label>
-            <select id="mode" onchange="setGameMode()">
-                <option value="pvp">Player vs Player</option>
-                <option value="easy">Player vs Computer (Easy)</option>
-                <option value="hard">Player vs Computer (Hard)</option>
-            </select>
+    <div class="game-container">
+        <h1> spin for the win</h1>
+        <div class="info">
+            <p id="points">Points: 200</p>
         </div>
-        <div id="board" class="board">
-            <div class="cell" onclick="makeMove(0)"></div>
-            <div class="cell" onclick="makeMove(1)"></div>
-            <div class="cell" onclick="makeMove(2)"></div>
-            <div class="cell" onclick="makeMove(3)"></div>
-            <div class="cell" onclick="makeMove(4)"></div>
-            <div class="cell" onclick="makeMove(5)"></div>
-            <div class="cell" onclick="makeMove(6)"></div>
-            <div class="cell" onclick="makeMove(7)"></div>
-            <div class="cell" onclick="makeMove(8)"></div>
-        </div>
-        <button onclick="resetGame()">Reset Game</button>
-        <p id="status"></p>
-    </div>
 
-    <!-- Background Music -->
-    <audio id="bgMusic" autoplay loop>
-        <source src="https://stream-172.zeno.fm/eoxmz166nvvtv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiJlb3htejE2Nm52dnR2IiwiaG9zdCI6InN0cmVhbS0xNzIuemVuby5mbSIsInJ0dGwiOjUsImp0aSI6IlVQVmtQQzdpUzNDWmVXMzg3NU8xTnciLCJpYXQiOjE3MzExNTM5OTcsImV4cCI6MTczMTE1NDA1N30.UbRjhaDE2ekip93SH4nuFHPGIIkk7uO5eG9Ir27GEFE" type="audio/mp3">
-        Your browser does not support the audio element.
-    </audio>
+        <!-- Slot Machine Display -->
+        <div class="slot-machine">
+            <div class="slot" id="slot1">🍇</div>
+            <div class="slot" id="slot2">🍇</div>
+            <div class="slot" id="slot3">🍇</div>
+        </div>
+
+        <!-- Controls Section -->
+        <div class="controls">
+            <button id="spin-button">Spin (10 Points)</button>
+            <button id="redeem-button">Redeem Code</button>
+            <input type="text" id="redeem-code" placeholder="Enter Redeem Code">
+            <button id="claim-reward">Claim Daily Reward</button>
+            <button id="patch-notes-button">Patch Notes</button>
+            <button id="rules-button">Game Rules</button> <!-- Added Game Rules button -->
+        </div>
+
+        <!-- Notification or Message for Score Posting -->
+        <div id="score-message" class="score-message">
+            Post Your Score on QuantumSync for a chance to win money!
+        </div>
+
+        <!-- Notification Pop-Up -->
+        <div id="notification"></div>
+
+        <!-- Patch Notes Modal -->
+        <div id="patch-notes-modal" class="modal">
+            <div class="modal-content">
+                <h2>Patch Notes - Version 1.2</h2>
+                <ul>
+                    <li>Improved spin odds for higher chances of winning.</li>
+                    <li>Added the "Post Score" feature for a chance to win money!</li>
+                    <li>Daily rewards are now available for spins and points!</li>
+                    <li>Updated the game UI for better experience.</li>
+                    <li>Bug fixes and performance improvements.</li>
+                </ul>
+                <button id="close-patch-notes">Close</button>
+            </div>
+        </div>
+
+        <!-- Rules Modal -->
+        <div id="rules-modal" class="modal">
+            <div class="modal-content">
+                <h2>Game Rules and Odds</h2>
+                <ul>
+                    <li><strong>Start with 200 points.</strong></li>
+                    <li>Spin costs 10 points per spin.</li>
+                    <li>If all three slots match, you win 100 points (Jackpot!).</li>
+                    <li>Small wins give you 20 points (2 out of 3 matching).</li>
+                    <li>Redeem codes can give bonus points.</li>
+                    <li>Claim your daily reward of 50 points once per day!</li>
+                    <li><strong>Odds:</strong>
+                        <ul>
+                            <li>Jackpot (3 matching): 1 in 20</li>
+                            <li>Small win (2 matching): 1 in 5</li>
+                            <li>Miss (no match): 3 in 5</li>
+                        </ul>
+                    </li>
+                    <li>Have fun and good luck!</li>
+                </ul>
+                <button id="start-game">Start Game</button>
+            </div>
+        </div>
+
+    </div>
 
     <script src="script.js"></script>
 </body>
 </html>
+
